@@ -1,0 +1,34 @@
+# Take this file, enter all <TODO's> and store it as SymbioteClientFX.properties
+
+# This is the connection from the client to the core.
+core.url=<TODO>
+
+# For some reason all software (as of end of year 2017) has a separate setting for the core AAM.
+# I assume this is a derelict and will vanish soon. Then we will remove this setting.
+# Note, that it is already identical to the core.url.
+core.aamURL=<TODO>
+
+
+
+# Each client must operate on behalf of a platform which manages user id and other things.
+# This is the home platform.
+homeplatform=<TODO>
+
+# The app must identify itself against the above platform by incorporating a user.
+# These are username and password
+appuser=<TODO>
+apppass=<TODO>
+
+# If this app is used to create the above user in the platform, a superuser account is needed (aka "platform owner" in the settings of the PAAM)
+platform.owner.name=<TODO>
+platform.owner.pass=<TODO>
+
+
+
+# The security library needs a key store.
+# This is used to cache certain passwords.
+# The following keys determine where this store is located on the disk and which password is used to protect it.
+keystore.Path=ks.jks
+keystore.Password=1234
+
+

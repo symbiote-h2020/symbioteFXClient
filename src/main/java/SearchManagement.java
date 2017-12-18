@@ -37,7 +37,7 @@ public class SearchManagement {
 	public static void doParametricSearch() {
 		
 	
-		String platformId="AIT-openUwedat";
+		String platformId="AIT-openUwedat"; // TODO: Get this from the core
         String platformName=null;
         String owner=null;
         String name=null;
@@ -50,7 +50,6 @@ public class SearchManagement {
         String[] observed_property=null;
         String resource_type=null;
         Boolean should_rank=null;
-        String homePlatformId="AIT-openUwedat";
 		
         CoreQueryRequest queryRequest = new CoreQueryRequest();
         queryRequest.setPlatform_id(platformId);
@@ -73,7 +72,7 @@ public class SearchManagement {
         String queryUrl = queryRequest.buildQuery(ConnectionManagement.symbIoTeCoreUrl);
 //        log.info("queryUrl = " + queryUrl);
 
-        resources=sendRequestAndVerifyResponse("GET", queryUrl, homePlatformId,
+        resources=sendRequestAndVerifyResponse("GET", queryUrl, ConnectionManagement.homePlatformId,
                 SecurityConstants.CORE_AAM_INSTANCE_ID, "search");
 
 
@@ -105,7 +104,12 @@ public class SearchManagement {
 			Map<String, AAM> availableAAMs = ConnectionManagement.securityHandler.getAvailableAAMs();
 
 //			log.info("Getting certificate for " + availableAAMs.get(homePlatformId).getAamInstanceId());
-			ConnectionManagement.securityHandler.getCertificate(availableAAMs.get(homePlatformId), "demo", "demo", ConnectionManagement.clientId);
+			ConnectionManagement.securityHandler.getCertificate(
+					availableAAMs.get(homePlatformId), 
+					ConnectionManagement.appUser, 
+					ConnectionManagement.appPass, 
+					ConnectionManagement.clientId
+					);
 
 //			log.info("Getting token from " + availableAAMs.get(homePlatformId).getAamInstanceId());
 			Token homeToken = ConnectionManagement.securityHandler.login(availableAAMs.get(homePlatformId));
@@ -123,7 +127,6 @@ public class SearchManagement {
 				| NoSuchAlgorithmException e) {
 			e.printStackTrace();
 			return null;
-//			return new ResponseEntity<>(e.getMessage(), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

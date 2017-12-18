@@ -14,18 +14,27 @@ public class ConnectionManagement {
 
 	
     public static ISecurityHandler securityHandler;
-//    public static String symbIoTeCoreUrl="https://symbiote-dev.man.poznan.pl:8100/coreInterface/v1";
-    public static String symbIoTeCoreUrl="https://symbiote-dev.man.poznan.pl/coreInterface";
-    static String coreAAMAddress        ="https://symbiote-dev.man.poznan.pl/coreInterface";
-    static String keystorePath="ks.jks";
-    static String keystorePassword="1234";
-    static String userId="";
-//    static String clientId="backendDemoApp";
-    static String clientId="fatClientDemoApp";
 
-    static String password="Catberta";
+//    public static String symbIoTeCoreUrl="https://symbiote-dev.man.poznan.pl/coreInterface";
+//    static String coreAAMAddress        ="https://symbiote-dev.man.poznan.pl/coreInterface";
+    static String symbIoTeCoreUrl=ClientMain.theProperties.getProperty("core.url");
+    static String coreAAMAddress =ClientMain.theProperties.getProperty("core.aamURL");
+
+    static String keystorePath=ClientMain.theProperties.getProperty("keystore.Path");
+    static String keystorePassword=ClientMain.theProperties.getProperty("keystore.Password");
+    
+
     
     
+    public static String homePlatformId=ClientMain.theProperties.getProperty("homeplatform");
+
+    public static String appUser=ClientMain.theProperties.getProperty("appuser");
+    public static String appPass=ClientMain.theProperties.getProperty("apppass");
+
+    
+    static String clientId="fatClientDemoApp"; // each client must have an id. Currently this is only used to trace accesses.
+    
+    static String userId="";	// Doesn't matter yet.
 
 	
 	

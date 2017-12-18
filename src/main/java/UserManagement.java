@@ -34,7 +34,7 @@ public class UserManagement {
 		
 		
 //        log.info("Registering to PAAM: " + platformId);
-		String platformId="AIT-openUwedat";
+		String platformId=ConnectionManagement.homePlatformId;
 		String paamOwnerUsername="duennebeilg";
 		String paamOwnerPassword="Catberta";
 		
