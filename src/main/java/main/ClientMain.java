@@ -1,7 +1,12 @@
+package main;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
 
+import controller.ConnectionManagement;
+import controller.UserManagement;
+import gui.TabCreateUser;
+import gui.TabSearch;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;

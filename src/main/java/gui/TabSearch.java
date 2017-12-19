@@ -1,16 +1,26 @@
+package gui;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 
+import com.sun.javafx.collections.ChangeHelper;
+
+import controller.SearchManagement;
 import eu.h2020.symbiote.core.ci.QueryResourceResult;
 
 
@@ -19,6 +29,7 @@ public class TabSearch {
 	Tab tab;
 	
 	private TableView table;
+	public static QueryResourceResult currentSelection=null;
 	
 	ObservableList<QueryResourceResult> data=FXCollections.observableArrayList();
 	
@@ -45,7 +56,7 @@ public class TabSearch {
         });
         
 
-        table = new TableView();
+        table = new TableView<Object>();
         
         TableColumn idColumn = new TableColumn("id");
         idColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("id"));
@@ -62,6 +73,19 @@ public class TabSearch {
         table.getColumns().addAll(idColumn, nameColumn, locnameColumn, descColumn);
 
         table.setItems(data);
+        
+        
+        ChangeListener selectionListener=new ChangeListener() {
+
+			@Override
+			public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+				currentSelection=(QueryResourceResult) newValue;
+			}
+        	
+        };
+        
+        table.getSelectionModel().selectedItemProperty().addListener(selectionListener);
+        
         
         final VBox vbox = new VBox();
         vbox.setSpacing(5);

@@ -1,14 +1,17 @@
+package gui;
+import controller.UserManagement;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.StackPane;
 
+
 public class TabCreateUser {
 
 	Tab tab;
 	
-	void init() {
+	public void init() {
 		
         Button btn = new Button();
         btn.setText("Add user");
@@ -32,7 +35,7 @@ public class TabCreateUser {
 	}
 	
 	
-	Tab getTab() {
+	public Tab getTab() {
 		return tab;
 	}
 	

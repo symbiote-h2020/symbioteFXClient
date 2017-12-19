@@ -1,3 +1,4 @@
+package controller;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
@@ -9,6 +10,7 @@ import javax.net.ssl.X509TrustManager;
 import eu.h2020.symbiote.security.ClientSecurityHandlerFactory;
 import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
 import eu.h2020.symbiote.security.handler.ISecurityHandler;
+import main.ClientMain;
 
 public class ConnectionManagement {
 
@@ -32,7 +34,7 @@ public class ConnectionManagement {
     public static String appPass=ClientMain.theProperties.getProperty("apppass");
 
     
-    static String clientId="fatClientDemoApp"; // each client must have an id. Currently this is only used to trace accesses.
+    public static String clientId="fatClientDemoApp"; // each client must have an id. Currently this is only used to trace accesses.
     
     static String userId="";	// Doesn't matter yet.
 

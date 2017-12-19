@@ -1,3 +1,4 @@
+package controller;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -25,7 +26,7 @@ import eu.h2020.symbiote.security.handler.ISecurityHandler;
 public class UserManagement {
 
 		
-	static void init() throws NoSuchAlgorithmException, SecurityHandlerException {
+	public static void init() throws NoSuchAlgorithmException, SecurityHandlerException {
 	}
 	
 	
