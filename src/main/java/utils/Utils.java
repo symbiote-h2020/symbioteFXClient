@@ -7,16 +7,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import controller.ConnectionManagement;
-import eu.h2020.symbiote.core.ci.QueryResourceResult;
-import eu.h2020.symbiote.core.ci.QueryResponse;
+import eu.h2020.symbiote.core.cci.AbstractResponseSecured;
 import eu.h2020.symbiote.security.commons.Token;
 import eu.h2020.symbiote.security.commons.credentials.AuthorizationCredentials;
 import eu.h2020.symbiote.security.commons.credentials.HomeCredentials;
@@ -27,8 +26,9 @@ import eu.h2020.symbiote.security.communication.payloads.SecurityRequest;
 import eu.h2020.symbiote.security.helpers.MutualAuthenticationHelper;
 
 public class Utils {
-	public static List<QueryResourceResult> sendRequestAndVerifyResponse(String httpMethod, String strUrl, String homePlatformId,
-			String targetPlatformId, String componentId) {
+
+	public static Object sendRequestAndVerifyResponse(String httpMethod, String strUrl, String homePlatformId,
+			String targetPlatformId, String componentId, TypeReference<?> expectedType) {
 
 		Map<String, String> securityRequestHeaders=null;
 //		HttpHeaders httpHeaders = new HttpHeaders();
@@ -44,6 +44,8 @@ public class Utils {
 			urlConnection=(HttpURLConnection) url.openConnection();
 			urlConnection.setRequestMethod(httpMethod);
 
+			
+			urlConnection.setRequestProperty("Accept", "application/json");
 			
 			Set<AuthorizationCredentials> authorizationCredentialsSet = new HashSet<>();
 			Map<String, AAM> availableAAMs = ConnectionManagement.securityHandler.getAvailableAAMs();
@@ -81,7 +83,10 @@ public class Utils {
 		}
 
 		for (Map.Entry<String, String> entry : securityRequestHeaders.entrySet()) {
-			urlConnection.setRequestProperty(entry.getKey(), entry.getValue());
+			String key=entry.getKey();
+			String value=entry.getValue();
+			System.out.println("Copying header "+key+" with a value of "+value);
+			urlConnection.setRequestProperty(key, value);
 		}
 //		log.info("request headers: " + httpHeaders);
 
@@ -105,15 +110,21 @@ public class Utils {
 				
 				
 	            ObjectMapper mapper = new ObjectMapper();
-	            QueryResponse msg = mapper.readValue(response, QueryResponse.class);
+	            Object decodedMsg = mapper.readValue(response, expectedType);
 	            
-	            System.out.println(msg);
-	            List<QueryResourceResult> resources=msg.getBody();
+	            System.out.println(decodedMsg);
 	            
-	            return resources;
+	            return decodedMsg;
 
 			} else {
 				is=urlConnection.getErrorStream();
+				int n;
+				while((n = is.read()) > -1) {
+				   bos.write(n);   // Don't allow any extra bytes to creep in, final write
+				}
+
+				String response=bos.toString("UTF-8");
+				System.out.println(response);
 			}
 //			responseEntity = restTemplate.exchange(url, httpMethod, httpEntity, Object.class);
 		} catch (IOException e) {

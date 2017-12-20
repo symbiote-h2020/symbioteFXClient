@@ -1,35 +1,17 @@
 package controller;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import eu.h2020.symbiote.core.ci.QueryResourceResult;
 import eu.h2020.symbiote.core.ci.QueryResponse;
 import eu.h2020.symbiote.core.internal.CoreQueryRequest;
-import eu.h2020.symbiote.enabler.messaging.model.rap.access.ResourceAccessMessage;
+import eu.h2020.symbiote.core.internal.cram.ResourceUrlsResponse;
+import eu.h2020.symbiote.model.cim.Observation;
 import eu.h2020.symbiote.security.commons.SecurityConstants;
-import eu.h2020.symbiote.security.commons.Token;
-import eu.h2020.symbiote.security.commons.credentials.AuthorizationCredentials;
-import eu.h2020.symbiote.security.commons.credentials.HomeCredentials;
-import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
-import eu.h2020.symbiote.security.commons.exceptions.custom.ValidationException;
-import eu.h2020.symbiote.security.communication.payloads.AAM;
-import eu.h2020.symbiote.security.communication.payloads.SecurityRequest;
-import eu.h2020.symbiote.security.helpers.MutualAuthenticationHelper;
 import utils.Utils;
 
 public class SearchManagement {
@@ -74,14 +56,37 @@ public class SearchManagement {
         String queryUrl = queryRequest.buildQuery(ConnectionManagement.symbIoTeCoreUrl);
 //        log.info("queryUrl = " + queryUrl);
 
-        resources=Utils.sendRequestAndVerifyResponse("GET", queryUrl, ConnectionManagement.homePlatformId,
-                SecurityConstants.CORE_AAM_INSTANCE_ID, "search");
+        QueryResponse qr=(QueryResponse) Utils.sendRequestAndVerifyResponse("GET", queryUrl, ConnectionManagement.homePlatformId,
+                SecurityConstants.CORE_AAM_INSTANCE_ID, "search", new TypeReference<QueryResponse>(){});
+        
+        resources=qr.getBody();
 
 
 		
 		// More processing
 	}
 	
-	
 
+	public static String getResourceURL(String resourceId) {
+	    String cramRequestUrl = ConnectionManagement.symbIoTeCoreUrl + "/resourceUrls?id=" + resourceId;
+	    
+	    ResourceUrlsResponse rur=(ResourceUrlsResponse) Utils.sendRequestAndVerifyResponse("GET", cramRequestUrl, ConnectionManagement.homePlatformId,
+	            SecurityConstants.CORE_AAM_INSTANCE_ID, "cram", new TypeReference<ResourceUrlsResponse>(){});
+	    
+	    HashMap<String, String> urlList=rur.getBody();
+	    
+	    String url=urlList.get(resourceId);
+	    
+	    return url;
+	}
+
+	
+	public static Observation getObservation(String url) {
+		
+//		TypeReference<List<Observation>> resultClass=new TypeReference<List<Observation>>(){};
+		TypeReference<Observation> resultClass=new TypeReference<Observation>(){};
+		
+		Observation observation=(Observation)Utils.sendRequestAndVerifyResponse("GET", url, ConnectionManagement.homePlatformId, ConnectionManagement.homePlatformId, "rap", resultClass);
+		return observation;
+	}
 }

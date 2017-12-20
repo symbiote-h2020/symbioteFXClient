@@ -6,6 +6,7 @@ import java.util.Properties;
 import controller.ConnectionManagement;
 import controller.UserManagement;
 import gui.TabCreateUser;
+import gui.TabGetObservations;
 import gui.TabSearch;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -52,6 +53,11 @@ public class ClientMain extends Application {
 	        TabSearch ts=new TabSearch();
 	        ts.init();
 	        tabPane.getTabs().add(ts.getTab());
+	        
+	        
+	        TabGetObservations tgo=new TabGetObservations();
+	        tgo.init();
+	        tabPane.getTabs().add(tgo.getTab());
 	        	        
 	        primaryStage.setScene(new Scene(tabPane, 300, 250));
 	        primaryStage.show();		
