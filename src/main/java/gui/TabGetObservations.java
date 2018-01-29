@@ -35,6 +35,7 @@ public class TabGetObservations {
 	Tab tab;
 	
 	private TableView<Observation> table;
+	int maxTableLength=50;
 	
 	String url=null;
 	
@@ -68,6 +69,8 @@ public class TabGetObservations {
             	        System.out.println("this is called every 5 seconds on UI thread");
 //            	        String localURL="https://enviro5.ait.ac.at/symbiote/rap/Sensors('5a311a7fec44ba19e65d8e31')/Observations?$top=1";
             	        Observation obs=SearchManagement.getObservation(url);
+            	        if (data.size()>maxTableLength)
+            	        	data.remove(0);
             	        data.add(obs);
             	    }
             	}));

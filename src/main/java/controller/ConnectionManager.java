@@ -10,9 +10,10 @@ import javax.net.ssl.X509TrustManager;
 import eu.h2020.symbiote.security.ClientSecurityHandlerFactory;
 import eu.h2020.symbiote.security.commons.exceptions.custom.SecurityHandlerException;
 import eu.h2020.symbiote.security.handler.ISecurityHandler;
+import events.ConfigurationChangedHandler;
 import main.ClientMain;
 
-public class ConnectionManagement {
+public class ConnectionManager implements ConfigurationChangedHandler {
 
 	
     public static ISecurityHandler securityHandler;
@@ -68,6 +69,19 @@ public class ConnectionManagement {
         securityHandler = ClientSecurityHandlerFactory.getSecurityHandler(coreAAMAddress, keystorePath,
                 keystorePassword, userId);
 
+	}
+
+
+
+	@Override
+	public void confChanged(int changedSetting) {
+		try {
+			ConnectionManager.init();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (SecurityHandlerException e) {
+			e.printStackTrace();
+		}		
 	}
 
 }

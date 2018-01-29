@@ -18,45 +18,45 @@ public class SearchManagement {
 
 	public static List<QueryResourceResult>resources=null;
 	
-	public static void doParametricSearch() {
+	public static void doParametricSearch(CoreQueryRequest cr) {
 		
 	
-		String platformId="AIT-openUwedat"; // TODO: Get this from the core
-        String platformName=null;
-        String owner=null;
-        String name=null;
-        String id=null;
-        String description=null;
-        String location_name=null;
-        Double location_lat=null;
-        Double location_long=null;
-        Integer max_distance=null;
-        String[] observed_property=null;
-        String resource_type=null;
-        Boolean should_rank=null;
-		
-        CoreQueryRequest queryRequest = new CoreQueryRequest();
-        queryRequest.setPlatform_id(platformId);
-        queryRequest.setPlatform_name(platformName);
-        queryRequest.setOwner(owner);
-        queryRequest.setName(name);
-        queryRequest.setId(id);
-        queryRequest.setDescription(description);
-        queryRequest.setLocation_name(location_name);
-        queryRequest.setLocation_lat(location_lat);
-        queryRequest.setLocation_long(location_long);
-        queryRequest.setMax_distance(max_distance);
-        queryRequest.setResource_type(resource_type);
-        queryRequest.setShould_rank(should_rank);
+//		String platformId="AIT-openUwedat"; // TODO: Get this from the core
+//        String platformName=null;
+//        String owner=null;
+//        String name=null;
+//        String id=null;
+//        String description=null;
+//        String location_name=null;
+//        Double location_lat=null;
+//        Double location_long=null;
+//        Integer max_distance=null;
+//        String[] observed_property=null;
+//        String resource_type=null;
+//        Boolean should_rank=null;
+//		
+//        CoreQueryRequest queryRequest = new CoreQueryRequest();
+//        queryRequest.setPlatform_id(platformId);
+//        queryRequest.setPlatform_name(platformName);
+//        queryRequest.setOwner(owner);
+//        queryRequest.setName(name);
+//        queryRequest.setId(id);
+//        queryRequest.setDescription(description);
+//        queryRequest.setLocation_name(location_name);
+//        queryRequest.setLocation_lat(location_lat);
+//        queryRequest.setLocation_long(location_long);
+//        queryRequest.setMax_distance(max_distance);
+//        queryRequest.setResource_type(resource_type);
+//        queryRequest.setShould_rank(should_rank);
 
-        if (observed_property != null) {
-            queryRequest.setObserved_property(Arrays.asList(observed_property));
-        }
+//        if (cr.getObserved_property() != null) {
+//            cr.setObserved_property(Arrays.asList(observed_property));
+//        }
 
-        String queryUrl = queryRequest.buildQuery(ConnectionManagement.symbIoTeCoreUrl);
+        String queryUrl = cr.buildQuery(ConnectionManager.symbIoTeCoreUrl);
 //        log.info("queryUrl = " + queryUrl);
 
-        QueryResponse qr=(QueryResponse) Utils.sendRequestAndVerifyResponse("GET", queryUrl, ConnectionManagement.homePlatformId,
+        QueryResponse qr=(QueryResponse) Utils.sendRequestAndVerifyResponse("GET", queryUrl, ConnectionManager.homePlatformId,
                 SecurityConstants.CORE_AAM_INSTANCE_ID, "search", new TypeReference<QueryResponse>(){});
         
         resources=qr.getBody();
@@ -68,9 +68,9 @@ public class SearchManagement {
 	
 
 	public static String getResourceURL(String resourceId) {
-	    String cramRequestUrl = ConnectionManagement.symbIoTeCoreUrl + "/resourceUrls?id=" + resourceId;
+	    String cramRequestUrl = ConnectionManager.symbIoTeCoreUrl + "/resourceUrls?id=" + resourceId;
 	    
-	    ResourceUrlsResponse rur=(ResourceUrlsResponse) Utils.sendRequestAndVerifyResponse("GET", cramRequestUrl, ConnectionManagement.homePlatformId,
+	    ResourceUrlsResponse rur=(ResourceUrlsResponse) Utils.sendRequestAndVerifyResponse("GET", cramRequestUrl, ConnectionManager.homePlatformId,
 	            SecurityConstants.CORE_AAM_INSTANCE_ID, "cram", new TypeReference<ResourceUrlsResponse>(){});
 	    
 	    HashMap<String, String> urlList=rur.getBody();
@@ -86,7 +86,7 @@ public class SearchManagement {
 //		TypeReference<List<Observation>> resultClass=new TypeReference<List<Observation>>(){};
 		TypeReference<Observation> resultClass=new TypeReference<Observation>(){};
 		
-		Observation observation=(Observation)Utils.sendRequestAndVerifyResponse("GET", url, ConnectionManagement.homePlatformId, ConnectionManagement.homePlatformId, "rap", resultClass);
+		Observation observation=(Observation)Utils.sendRequestAndVerifyResponse("GET", url, ConnectionManager.homePlatformId, ConnectionManager.homePlatformId, "rap", resultClass);
 		return observation;
 	}
 }

@@ -35,7 +35,7 @@ public class UserManagement {
 		
 		
 //        log.info("Registering to PAAM: " + platformId);
-		String platformId=ConnectionManagement.homePlatformId;
+		String platformId=ConnectionManager.homePlatformId;
 		String paamOwnerUsername="duennebeilg";
 		String paamOwnerPassword="Catberta";
 		
@@ -44,7 +44,7 @@ public class UserManagement {
 		
         try {
 
-             Map<String, AAM> availableAAMs = ConnectionManagement.securityHandler.getAvailableAAMs();
+             Map<String, AAM> availableAAMs = ConnectionManager.securityHandler.getAvailableAAMs();
              AAMClient aamClient = new AAMClient(availableAAMs.get(platformId).getAamAddress());
 //             log.info("Registering to PAAM: " + platformId + " with url " + availableAAMs.get(platformId).getAamAddress());
 

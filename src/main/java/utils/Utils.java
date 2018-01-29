@@ -1,4 +1,6 @@
 package utils;
+
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,8 +16,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import controller.ConnectionManagement;
-import eu.h2020.symbiote.core.cci.AbstractResponseSecured;
+import controller.ConnectionManager;
 import eu.h2020.symbiote.security.commons.Token;
 import eu.h2020.symbiote.security.commons.credentials.AuthorizationCredentials;
 import eu.h2020.symbiote.security.commons.credentials.HomeCredentials;
@@ -48,20 +49,20 @@ public class Utils {
 			urlConnection.setRequestProperty("Accept", "application/json");
 			
 			Set<AuthorizationCredentials> authorizationCredentialsSet = new HashSet<>();
-			Map<String, AAM> availableAAMs = ConnectionManagement.securityHandler.getAvailableAAMs();
+			Map<String, AAM> availableAAMs = ConnectionManager.securityHandler.getAvailableAAMs();
 
 //			log.info("Getting certificate for " + availableAAMs.get(homePlatformId).getAamInstanceId());
-			ConnectionManagement.securityHandler.getCertificate(
+			ConnectionManager.securityHandler.getCertificate(
 					availableAAMs.get(homePlatformId), 
-					ConnectionManagement.appUser, 
-					ConnectionManagement.appPass, 
-					ConnectionManagement.clientId
+					ConnectionManager.appUser, 
+					ConnectionManager.appPass, 
+					ConnectionManager.clientId
 					);
 
 //			log.info("Getting token from " + availableAAMs.get(homePlatformId).getAamInstanceId());
-			Token homeToken = ConnectionManagement.securityHandler.login(availableAAMs.get(homePlatformId));
+			Token homeToken = ConnectionManager.securityHandler.login(availableAAMs.get(homePlatformId));
 
-			HomeCredentials homeCredentials = ConnectionManagement.securityHandler.getAcquiredCredentials()
+			HomeCredentials homeCredentials = ConnectionManager.securityHandler.getAcquiredCredentials()
 					.get(homePlatformId).homeCredentials;
 			authorizationCredentialsSet
 					.add(new AuthorizationCredentials(homeToken, homeCredentials.homeAAM, homeCredentials));

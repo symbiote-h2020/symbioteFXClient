@@ -1,4 +1,12 @@
 package gui;
+
+
+
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.property.adapter.JavaBeanStringProperty;
+import javafx.beans.property.adapter.JavaBeanStringPropertyBuilder;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -6,44 +14,166 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import javafx.util.Callback;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 
-import com.sun.javafx.collections.ChangeHelper;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import controller.SearchManagement;
 import eu.h2020.symbiote.core.ci.QueryResourceResult;
+import eu.h2020.symbiote.core.internal.CoreQueryRequest;
+
+
+
+class ModifiableObservableStringList extends javafx.collections.ModifiableObservableListBase<String> {
+
+	private List<String> theList;
+
+	public ModifiableObservableStringList(List<String> theList) {
+		this.theList=theList;
+	}
+	
+	@Override
+	public String get(int index) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int size() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	protected void doAdd(int index, String element) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected String doSet(int index, String element) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected String doRemove(int index) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}
+
+
 
 
 public class TabSearch {
 
 	Tab tab;
+	TableView table;
 	
-	private TableView table;
+	List<Object> strongHold=new ArrayList<Object>();
+
+
+	
+	CoreQueryRequest cr=new CoreQueryRequest();
 	public static QueryResourceResult currentSelection=null;
 	
 	ObservableList<QueryResourceResult> data=FXCollections.observableArrayList();
+
+	
+	StringProperty obsProps_property=new SimpleStringProperty(); 
 	
 	public void init() {
+		
+		Tab tabSearchParameter=setupParameterTab();
+		Tab tabSearchResults=setupResultTab();
+		
         tab = new Tab();
         tab.setText("Search ...");
         
+
+        TabPane tabPane = new TabPane();
+        
+        
+        tabPane.getTabs().add(tabSearchParameter);
+        tabPane.getTabs().add(tabSearchResults);
+        
+        tab.setContent(tabPane);
+
+	}
+
+
+	
+	
+	private Tab setupParameterTab() {
+		
+		
+		GridPane thePane=new GridPane();
+
+		
+		cr.setPlatform_id("AIT-openUwedat");
+		/*
+        String owner=null;
+        String name=null;
+        String id=null;
+        String description=null;
+        String location_name=null;
+        Double location_lat=null;
+        Double location_long=null;
+        Integer max_distance=null;
+        String[] observed_property=null;
+        String resource_type=null;
+        Boolean should_rank=null;
+
+		 */
+		
+		int row=0;
+		
+		
+		
+		addTextRow(row, thePane, "platform_Id", "platform_id");
+		row++;
+
+		addTextRow(row, thePane, "platformName", "platform_name");
+		row++;
+
+
+		addTextRow(row, thePane, "observedProperties", obsProps_property);
+		row++;
+
+
+		
         Button btn = new Button();
         btn.setText("Do search ...");
         btn.setOnAction(new EventHandler<ActionEvent>() {
  
             @Override
             public void handle(ActionEvent event) {
-                SearchManagement.doParametricSearch();
+            	
+
+            	String obsProp=TabSearch.this.obsProps_property.get();
+            	if (obsProp!=null) {
+	            	String[] obsProps=new String[] {obsProp};
+	            	List<String> obsPropList=Arrays.asList(obsProps);
+	            	cr.setObserved_property(obsPropList);
+            	} else {
+	            	cr.setObserved_property(null);            		
+            	}
+            	
+                SearchManagement.doParametricSearch(cr);
                 
                 data.clear();
                 
@@ -56,6 +186,109 @@ public class TabSearch {
         });
         
 
+        thePane.getChildren().add(btn);
+        
+        
+        thePane.setHgap(10);
+        thePane.setVgap(10);
+        thePane.setPadding(new Insets(25, 25, 25, 25));
+        
+		GridPane.setRowIndex(btn, row);
+		GridPane.setColumnIndex(btn, 0);
+        
+        
+        Tab tabSearchParameter=new Tab();
+        tabSearchParameter.setText("Search parameter");
+        
+        tabSearchParameter.setContent(thePane);
+        
+        
+
+        
+		return tabSearchParameter;
+	}
+
+	
+	
+	private void addTextRow(int row, GridPane thePane, String label, String propertyName) {
+
+		JavaBeanStringProperty property=null;
+		try {
+			property=JavaBeanStringPropertyBuilder.create().bean(cr).name(propertyName).build();
+		} catch (NoSuchMethodException e) {
+			// Developer too stupid error
+			e.printStackTrace();
+		}
+
+		
+		addTextRow(row, thePane, label, property);
+
+	}
+
+	
+	private void addTextRow(int row, GridPane thePane, String label, StringProperty theProperty) {
+
+		Label lbl=new Label();
+		lbl.setText(label);
+
+		GridPane.setRowIndex(lbl, row);
+		GridPane.setColumnIndex(lbl, 0);
+
+		TextField field=new TextField();
+		GridPane.setRowIndex(field, row);
+		GridPane.setColumnIndex(field, 1);
+		GridPane.setHgrow(field, Priority.ALWAYS);
+
+		Bindings.bindBidirectional(field.textProperty(), theProperty);
+		
+        thePane.getChildren().add(lbl);
+        thePane.getChildren().add(field);
+
+	}
+
+	
+	private void addListboxRow(int row, GridPane thePane, String label, String[] selections, String propertyName) {
+
+		Label lbl=new Label();
+		lbl.setText(label);
+
+		GridPane.setRowIndex(lbl, row);
+		GridPane.setColumnIndex(lbl, 0);
+
+		ListView<String> field=new ListView<String>();
+		GridPane.setRowIndex(field, row);
+		GridPane.setColumnIndex(field, 1);
+		GridPane.setHgrow(field, Priority.ALWAYS);
+
+		
+		for (String s : selections)
+			field.getItems().add(s);
+		
+		List<String> l=cr.getObserved_property();
+		if (l==null) {
+			l=new ArrayList<String>();
+			cr.setObserved_property(l);
+		}
+		ModifiableObservableStringList property=new ModifiableObservableStringList(l);
+		strongHold.add(property);
+
+		Bindings.bindContent(property, field.getSelectionModel().getSelectedItems());
+		
+        thePane.getChildren().add(lbl);
+        thePane.getChildren().add(field);
+
+	}
+	
+
+	
+	
+	private Tab setupResultTab() {
+		
+        Tab tabSearchResults=new Tab();
+        tabSearchResults.setText("Search results");
+
+        
+        
         table = new TableView<Object>();
         
         TableColumn idColumn = new TableColumn("id");
@@ -67,10 +300,19 @@ public class TabSearch {
         TableColumn locnameColumn = new TableColumn("Locationname");
         locnameColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("locationName"));
         
-        TableColumn descColumn = new TableColumn("description");
-        nameColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("description"));
+        TableColumn longitudeColumn = new TableColumn("longitude");
+        longitudeColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("locationLongitude"));
         
-        table.getColumns().addAll(idColumn, nameColumn, locnameColumn, descColumn);
+        TableColumn latitudeColumn = new TableColumn("latitude");
+        latitudeColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("locationLatitude"));
+
+        TableColumn obsPropColumn = new TableColumn("observedProperties");
+        obsPropColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, List<String>>("observedProperties"));
+
+        TableColumn descColumn = new TableColumn("description");
+        descColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("description"));
+        
+        table.getColumns().addAll(idColumn, nameColumn, locnameColumn, longitudeColumn, latitudeColumn, obsPropColumn, descColumn);
 
         table.setItems(data);
         
@@ -87,19 +329,15 @@ public class TabSearch {
         table.getSelectionModel().selectedItemProperty().addListener(selectionListener);
         
         
-        final VBox vbox = new VBox();
-        vbox.setSpacing(5);
-        vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(btn, table);
-        
-        StackPane root = new StackPane();
-        root.getChildren().add(vbox);
-        
 
-        tab.setContent(root);
-
+        tabSearchResults.setContent(table);
+        
+		return tabSearchResults;
 	}
 
+
+	
+	
 	public Tab getTab() {
 		return tab;
 	}
