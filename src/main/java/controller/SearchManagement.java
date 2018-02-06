@@ -54,6 +54,7 @@ public class SearchManagement {
 //        }
 
         String queryUrl = cr.buildQuery(ConnectionManager.symbIoTeCoreUrl);
+        System.out.println("Query ULR is "+queryUrl);
 //        log.info("queryUrl = " + queryUrl);
 
         QueryResponse qr=(QueryResponse) Utils.sendRequestAndVerifyResponse("GET", queryUrl, ConnectionManager.homePlatformId,

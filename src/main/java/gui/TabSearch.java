@@ -2,11 +2,6 @@ package gui;
 
 
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.beans.property.adapter.JavaBeanStringProperty;
-import javafx.beans.property.adapter.JavaBeanStringPropertyBuilder;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -16,7 +11,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
@@ -25,7 +19,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.util.StringConverter;
+import javafx.util.converter.DefaultStringConverter;
+import javafx.util.converter.DoubleStringConverter;
+import javafx.util.converter.IntegerStringConverter;
+import utils.javafx.NullAwareChangeListener;
 
+import java.beans.IntrospectionException;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,46 +38,6 @@ import eu.h2020.symbiote.core.ci.QueryResourceResult;
 import eu.h2020.symbiote.core.internal.CoreQueryRequest;
 
 
-
-class ModifiableObservableStringList extends javafx.collections.ModifiableObservableListBase<String> {
-
-	private List<String> theList;
-
-	public ModifiableObservableStringList(List<String> theList) {
-		this.theList=theList;
-	}
-	
-	@Override
-	public String get(int index) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	protected void doAdd(int index, String element) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected String doSet(int index, String element) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected String doRemove(int index) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-}
 
 
 
@@ -93,8 +56,19 @@ public class TabSearch {
 	
 	ObservableList<QueryResourceResult> data=FXCollections.observableArrayList();
 
+	class ObservedPropertyContainer {
+		String obsProps=null;
+
+		public String getObsProps() {
+			return obsProps;
+		}
+
+		public void setObsProps(String obsProps) {
+			this.obsProps = obsProps;
+		}
+	}
 	
-	StringProperty obsProps_property=new SimpleStringProperty(); 
+	ObservedPropertyContainer obsProps_property=new ObservedPropertyContainer();
 	
 	public void init() {
 		
@@ -124,17 +98,9 @@ public class TabSearch {
 		GridPane thePane=new GridPane();
 
 		
-		cr.setPlatform_id("AIT-openUwedat");
+		//cr.setPlatform_id("AIT-openUwedat");
 		/*
-        String owner=null;
-        String name=null;
-        String id=null;
-        String description=null;
-        String location_name=null;
-        Double location_lat=null;
-        Double location_long=null;
         Integer max_distance=null;
-        String[] observed_property=null;
         String resource_type=null;
         Boolean should_rank=null;
 
@@ -144,17 +110,40 @@ public class TabSearch {
 		
 		
 		
-		addTextRow(row, thePane, "platform_Id", "platform_id");
+		addTextRow(row, thePane, cr, "platform_Id", "platform_id");
 		row++;
 
-		addTextRow(row, thePane, "platformName", "platform_name");
+		addTextRow(row, thePane, cr, "platformName", "platform_name");
 		row++;
 
-
-		addTextRow(row, thePane, "observedProperties", obsProps_property);
+		addTextRow(row, thePane, obsProps_property, "observedProperties", "obsProps");
 		row++;
 
+		addTextRow(row, thePane, cr, "owner", "owner");
+		row++;
 
+		addTextRow(row, thePane, cr, "name", "name");
+		row++;
+
+		addTextRow(row, thePane, cr, "id", "id");
+		row++;
+
+		addTextRow(row, thePane, cr, "description", "description");
+		row++;
+
+		addTextRow(row, thePane, cr, "location_name", "location_name");
+		row++;
+
+		addTextRow(row, thePane, cr, "location_lat", "location_lat");
+		row++;
+
+		addTextRow(row, thePane, cr, "location_lon", "location_long");
+		row++;
+
+		addTextRow(row, thePane, cr, "max_distance", "max_distance");
+		row++;
+
+		
 		
         Button btn = new Button();
         btn.setText("Do search ...");
@@ -164,7 +153,7 @@ public class TabSearch {
             public void handle(ActionEvent event) {
             	
 
-            	String obsProp=TabSearch.this.obsProps_property.get();
+            	String obsProp=TabSearch.this.obsProps_property.getObsProps();
             	if (obsProp!=null) {
 	            	String[] obsProps=new String[] {obsProp};
 	            	List<String> obsPropList=Arrays.asList(obsProps);
@@ -210,23 +199,44 @@ public class TabSearch {
 
 	
 	
-	private void addTextRow(int row, GridPane thePane, String label, String propertyName) {
+	private void addTextRow(int row, GridPane thePane, Object obj, String label, String propertyName) {
 
-		JavaBeanStringProperty property=null;
+		StringConverter converter=null;
+		PropertyDescriptor pd=null;
 		try {
-			property=JavaBeanStringPropertyBuilder.create().bean(cr).name(propertyName).build();
-		} catch (NoSuchMethodException e) {
+			pd=new PropertyDescriptor(propertyName, obj.getClass());
+			
+			Class<?> dataType=pd.getPropertyType();
+			
+			if (dataType.equals(String.class)) {
+				converter=new DefaultStringConverter();
+			} else if (dataType.equals(Double.class)) {
+				converter=new DoubleStringConverter();
+			} else if (dataType.equals(Integer.class)) {
+				converter=new IntegerStringConverter();
+			} else {
+				throw new IllegalArgumentException("Type "+dataType.getCanonicalName()+" is unexpected");
+			}
+						
+		} catch (IllegalArgumentException e) {
 			// Developer too stupid error
+			e.printStackTrace();
+			throw(e);
+		} catch (IntrospectionException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+		addTextRow(row, thePane, obj, label, pd, converter);
 		
-		addTextRow(row, thePane, label, property);
-
+		
 	}
 
 	
-	private void addTextRow(int row, GridPane thePane, String label, StringProperty theProperty) {
+	
+	
+	private void addTextRow(int row, GridPane thePane, Object obj, String label, PropertyDescriptor pd, StringConverter converter)
+	{
 
 		Label lbl=new Label();
 		lbl.setText(label);
@@ -239,46 +249,30 @@ public class TabSearch {
 		GridPane.setColumnIndex(field, 1);
 		GridPane.setHgrow(field, Priority.ALWAYS);
 
-		Bindings.bindBidirectional(field.textProperty(), theProperty);
+		Method m=pd.getReadMethod();
 		
-        thePane.getChildren().add(lbl);
-        thePane.getChildren().add(field);
-
-	}
-
-	
-	private void addListboxRow(int row, GridPane thePane, String label, String[] selections, String propertyName) {
-
-		Label lbl=new Label();
-		lbl.setText(label);
-
-		GridPane.setRowIndex(lbl, row);
-		GridPane.setColumnIndex(lbl, 0);
-
-		ListView<String> field=new ListView<String>();
-		GridPane.setRowIndex(field, row);
-		GridPane.setColumnIndex(field, 1);
-		GridPane.setHgrow(field, Priority.ALWAYS);
-
-		
-		for (String s : selections)
-			field.getItems().add(s);
-		
-		List<String> l=cr.getObserved_property();
-		if (l==null) {
-			l=new ArrayList<String>();
-			cr.setObserved_property(l);
+		Object currentValue;
+		try {
+			currentValue = m.invoke(obj);
+			String currenttext=converter.toString(currentValue);
+			field.textProperty().set(currenttext);			
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		ModifiableObservableStringList property=new ModifiableObservableStringList(l);
-		strongHold.add(property);
-
-		Bindings.bindContent(property, field.getSelectionModel().getSelectedItems());
+		
+		field.textProperty().addListener(new NullAwareChangeListener(field, pd, obj, converter));
 		
         thePane.getChildren().add(lbl);
         thePane.getChildren().add(field);
 
 	}
-	
 
 	
 	
