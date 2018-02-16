@@ -23,6 +23,7 @@ import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
+import utils.ObservedPropertyContainer;
 import utils.javafx.NullAwareChangeListener;
 
 import java.beans.IntrospectionException;
@@ -47,29 +48,14 @@ public class TabSearch {
 	Tab tab;
 	TableView table;
 	
-	List<Object> strongHold=new ArrayList<Object>();
-
-
-	
 	CoreQueryRequest cr=new CoreQueryRequest();
 	public static QueryResourceResult currentSelection=null;
 	
 	ObservableList<QueryResourceResult> data=FXCollections.observableArrayList();
 
-	class ObservedPropertyContainer {
-		String obsProps=null;
-
-		public String getObsProps() {
-			return obsProps;
-		}
-
-		public void setObsProps(String obsProps) {
-			this.obsProps = obsProps;
-		}
-	}
-	
 	ObservedPropertyContainer obsProps_property=new ObservedPropertyContainer();
 	
+	ObservedPropertyContainer obsProps_property_uri=new ObservedPropertyContainer();
 	public void init() {
 		
 		Tab tabSearchParameter=setupParameterTab();
@@ -119,6 +105,9 @@ public class TabSearch {
 		addTextRow(row, thePane, obsProps_property, "observedProperties", "obsProps");
 		row++;
 
+		addTextRow(row, thePane, obsProps_property_uri, "observedPropertiesURI", "obsProps");
+		row++;
+		
 		addTextRow(row, thePane, cr, "owner", "owner");
 		row++;
 
@@ -155,11 +144,21 @@ public class TabSearch {
 
             	String obsProp=TabSearch.this.obsProps_property.getObsProps();
             	if (obsProp!=null) {
+//            		obsProp=obsProp.replaceAll(" ", "+");
 	            	String[] obsProps=new String[] {obsProp};
 	            	List<String> obsPropList=Arrays.asList(obsProps);
 	            	cr.setObserved_property(obsPropList);
             	} else {
 	            	cr.setObserved_property(null);            		
+            	}
+            	
+            	String obsPropURI=TabSearch.this.obsProps_property_uri.getObsProps();
+            	if (obsPropURI!=null) {
+	            	String[] obsPropsURI=new String[] {obsPropURI};
+	            	List<String> obsPropURIList=Arrays.asList(obsPropsURI);
+	            	cr.setObserved_property_iri(obsPropURIList);
+            	} else {
+	            	cr.setObserved_property_iri(null);            		
             	}
             	
                 SearchManagement.doParametricSearch(cr);
