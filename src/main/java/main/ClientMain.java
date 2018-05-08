@@ -52,7 +52,7 @@ public class ClientMain extends Application {
 	        tabPane.getTabs().add(tss.getTab());
 
 	        
-	        TabCreateUser tcu=new TabCreateUser();
+	        TabCreateUser tcu=new TabCreateUser(theProperties);
 	        tcu.init();
 	        tabPane.getTabs().add(tcu.getTab());
 

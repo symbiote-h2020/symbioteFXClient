@@ -23,6 +23,7 @@ import javafx.util.StringConverter;
 import javafx.util.converter.DefaultStringConverter;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
+import utils.LinewrappedPropertyValueFactory;
 import utils.ObservedPropertyContainer;
 import utils.javafx.NullAwareChangeListener;
 
@@ -35,6 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import controller.SearchManagement;
+import controller.UserManagement;
 import eu.h2020.symbiote.core.ci.QueryResourceResult;
 import eu.h2020.symbiote.core.internal.CoreQueryRequest;
 
@@ -60,6 +62,7 @@ public class TabSearch {
 		
 		Tab tabSearchParameter=setupParameterTab();
 		Tab tabSearchResults=setupResultTab();
+		Tab tabManage=setupManageTab();
 		
         tab = new Tab();
         tab.setText("Search ...");
@@ -70,6 +73,7 @@ public class TabSearch {
         
         tabPane.getTabs().add(tabSearchParameter);
         tabPane.getTabs().add(tabSearchResults);
+        tabPane.getTabs().add(tabManage);
         
         tab.setContent(tabPane);
 
@@ -300,7 +304,7 @@ public class TabSearch {
         latitudeColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("locationLatitude"));
 
         TableColumn obsPropColumn = new TableColumn("observedProperties");
-        obsPropColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, List<String>>("observedProperties"));
+        obsPropColumn.setCellValueFactory(new LinewrappedPropertyValueFactory<QueryResourceResult>("observedProperties"));
 
         TableColumn descColumn = new TableColumn("description");
         descColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("description"));
@@ -326,6 +330,33 @@ public class TabSearch {
         tabSearchResults.setContent(table);
         
 		return tabSearchResults;
+	}
+
+	private Tab setupManageTab() {
+		
+        Tab tabManage=new Tab();
+        tabManage.setText("Manage sensors");
+
+		GridPane thePane=new GridPane();
+
+
+        Button btn = new Button();
+        btn.setText("Add user");
+        btn.setOnAction(new EventHandler<ActionEvent>() {
+ 
+            @Override
+            public void handle(ActionEvent event) {
+//                UserManagement.addUser();
+            }
+        });
+        
+		GridPane.setRowIndex(btn, 0);
+		GridPane.setColumnIndex(btn, 0);
+        
+		
+        tabManage.setContent(thePane);
+        
+		return tabManage;
 	}
 
 

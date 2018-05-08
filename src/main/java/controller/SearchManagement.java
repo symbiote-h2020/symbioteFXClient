@@ -84,10 +84,15 @@ public class SearchManagement {
 	
 	public static Observation getObservation(String url) {
 		
-//		TypeReference<List<Observation>> resultClass=new TypeReference<List<Observation>>(){};
-		TypeReference<Observation> resultClass=new TypeReference<Observation>(){};
+		TypeReference<List<Observation>> resultClass=new TypeReference<List<Observation>>(){};
+//		TypeReference<Observation> resultClass=new TypeReference<Observation>(){};
 		
-		Observation observation=(Observation)Utils.sendRequestAndVerifyResponse("GET", url, ConnectionManager.homePlatformId, ConnectionManager.homePlatformId, "rap", resultClass);
-		return observation;
+		List<Observation> observations=(List<Observation>)Utils.sendRequestAndVerifyResponse("GET", url, ConnectionManager.homePlatformId, ConnectionManager.homePlatformId, "rap", resultClass);
+		System.out.println("Got observation: "+observations);
+		
+		if (observations.size()<1) {
+			throw new IllegalArgumentException("Got back a list with zero length from RAP");
+		}
+		return observations.get(0);
 	}
 }

@@ -48,6 +48,22 @@ public class TabGetObservations {
         
         Button btn = new Button();
         btn.setText("Get them ...");
+        
+        
+    	Timeline fetcher = new Timeline(new KeyFrame(Duration.seconds(5), new EventHandler<ActionEvent>() {
+
+    	    @Override
+    	    public void handle(ActionEvent event) {
+    	        System.out.println("this is called every 5 seconds on UI thread");
+//    	        String localURL="https://enviro5.ait.ac.at/symbiote/rap/Sensors('5a311a7fec44ba19e65d8e31')/Observations?$top=1";
+    	        Observation obs=SearchManagement.getObservation(url);
+//    	        if (data.size()>maxTableLength)
+//    	        	data.remove(0);
+    	        data.add(obs);
+    	    }
+    	}));
+
+    	
         btn.setOnAction(new EventHandler<ActionEvent>() {
  
             @Override
@@ -62,23 +78,13 @@ public class TabGetObservations {
             	
             	url=SearchManagement.getResourceURL(resourceID)+"/Observations?$top=1";
             	
-            	Timeline fetcher = new Timeline(new KeyFrame(Duration.seconds(5), new EventHandler<ActionEvent>() {
-
-            	    @Override
-            	    public void handle(ActionEvent event) {
-            	        System.out.println("this is called every 5 seconds on UI thread");
-//            	        String localURL="https://enviro5.ait.ac.at/symbiote/rap/Sensors('5a311a7fec44ba19e65d8e31')/Observations?$top=1";
-            	        Observation obs=SearchManagement.getObservation(url);
-            	        if (data.size()>maxTableLength)
-            	        	data.remove(0);
-            	        data.add(obs);
-            	    }
-            	}));
             	fetcher.setCycleCount(Timeline.INDEFINITE);
             	fetcher.play();
-                
-                
+
             }
+            
+            
+
         });
         
 

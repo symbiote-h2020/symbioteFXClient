@@ -118,14 +118,20 @@ public class Utils {
 	            return decodedMsg;
 
 			} else {
+				System.out.println("Problems accessing "+strUrl);
+				System.out.println("Response code was "+error);
 				is=urlConnection.getErrorStream();
-				int n;
-				while((n = is.read()) > -1) {
-				   bos.write(n);   // Don't allow any extra bytes to creep in, final write
+				if (is==null) {
+					System.out.println("No error message in response");
+				} else {
+					int n;
+					while((n = is.read()) > -1) {
+					   bos.write(n);   // Don't allow any extra bytes to creep in, final write
+					}
+	
+					String response=bos.toString("UTF-8");
+					System.out.println(response);
 				}
-
-				String response=bos.toString("UTF-8");
-				System.out.println(response);
 			}
 //			responseEntity = restTemplate.exchange(url, httpMethod, httpEntity, Object.class);
 		} catch (IOException e) {

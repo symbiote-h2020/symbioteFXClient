@@ -4,6 +4,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -31,7 +32,7 @@ public class UserManagement {
 	
 	
 	
-	public static void addUser() {
+	public static void addUser(Properties theProperties) {
 		
 		
 //        log.info("Registering to PAAM: " + platformId);
@@ -39,8 +40,8 @@ public class UserManagement {
 		String paamOwnerUsername="duennebeilg";
 		String paamOwnerPassword="Catberta";
 		
-		String username="demo";
-		String password="demo";
+		String username=theProperties.getProperty("appuser");
+		String password=theProperties.getProperty("apppass");
 		
         try {
 
@@ -54,7 +55,6 @@ public class UserManagement {
              UserDetails newUserDetails
              			=new UserDetails(
              					newUserCredentials, 
-             					"", 
              					"icom@icom.com",
              					UserRole.USER, 
              					new HashMap<>(), 

@@ -29,7 +29,7 @@ dependencies {
     // The production code uses the SLF4J logging API at compile time
     compile 'org.slf4j:slf4j-api:1.7.21'
 
-    // Declare the dependency for your favourite test framework you want to use in your tests.
+    // Declare the dependency for your favorite test framework you want to use in your tests.
     // TestNG is also supported by the Gradle Test task. Just change the
     // testCompile dependency to testCompile 'org.testng:testng:6.8.1' and add
     // 'test.useTestNG()' to your build script.
@@ -37,7 +37,7 @@ dependencies {
 
     // SymbIoTeLibraries manual:
     //  One can use the library from jitpack by default with the notation:
-    compile('com.github.symbiote-h2020:SymbIoTeLibraries:develop-SNAPSHOT') {changing = true }
+//    compile('com.github.symbiote-h2020:SymbIoTeLibraries:develop-SNAPSHOT') {changing = true }
     // or having cloned locally the SymbIoTeLibraries repo use it directly with project dependency by:
  
 //    compile project(':SymbIoTeLibraries')
@@ -49,7 +49,8 @@ dependencies {
             4) never commit build.gradle which has project dependencies active as it will break CI builds
     */
 
-//    compile('com.github.symbiote-h2020:SymbIoTeLibraries:5.+') { changing = true }
+    compile('com.github.symbiote-h2020:SymbIoTeLibraries:5.+') { changing = true }
+//      compile('com.github.symbiote-h2020:SymbIoTeLibraries:property_uom_iri_implementation-SNAPSHOT') {changing=true}
 
 }
 
