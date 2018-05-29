@@ -2,13 +2,17 @@ package gui;
 
 
 
+import javafx.beans.InvalidationListener;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -29,20 +33,110 @@ import utils.javafx.NullAwareChangeListener;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
+
 import controller.SearchManagement;
-import controller.UserManagement;
 import eu.h2020.symbiote.core.ci.QueryResourceResult;
 import eu.h2020.symbiote.core.internal.CoreQueryRequest;
 
 
+class ObservableVariable<T> implements ObservableValue<T> {
+	T theValue;
+	
+	List<WeakReference<ChangeListener<? super T>>> listeners=new ArrayList<WeakReference<ChangeListener<? super T>>>();
+	
+	
+	
+	public void setValue(T v) {
+		T theOldValue=theValue;
+		theValue=v;
+		
+		fireEvent(theOldValue);
+	}
+	
+	public T getValue() {
+		return theValue;
+	}
+	
+	
+	private void fireEvent(T theOldValue) {
 
+		Iterator<WeakReference<ChangeListener<? super T>>> it=listeners.iterator();
+		
+		while (it.hasNext()) {
+			WeakReference<ChangeListener<? super T>> wr=it.next();
+			if (wr==null) {
+				it.remove();
+				continue;
+			}
+			
+			ChangeListener<? super T> listener=wr.get();
+			
+			if (listener==null) {
+				it.remove();
+				continue;
+			}
 
+			listener.changed(this, theOldValue, this.theValue);
+		}
+		
+	}
+
+	@Override
+	public void addListener(InvalidationListener listener) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeListener(InvalidationListener listener) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addListener(ChangeListener<? super T> listener) {
+		removeListener(listener);	// Make sure, we are not adding the same thingy twice.
+		
+		WeakReference<ChangeListener<? super T>> wr=new WeakReference<ChangeListener<? super T>>(listener);
+		listeners.add(wr);
+	}
+
+	@Override
+	public void removeListener(ChangeListener<? super T> cl) {
+		Iterator<WeakReference<ChangeListener<? super T>>> it=listeners.iterator();
+		
+		while (it.hasNext()) {
+			WeakReference<ChangeListener<? super T>> wr=it.next();
+			if (wr==null) {
+				it.remove();
+				continue;
+			}
+			
+			ChangeListener<? super T> listener=wr.get();
+			
+			if (listener==null) {
+				it.remove();
+				continue;
+			}
+			
+			if(listener==cl) {	// Yes, really ==, not equals. We want it to be the same object, not an equal object.
+				it.remove();
+				continue;
+			}
+		}
+		
+	}
+}
 
 
 public class TabSearch {
@@ -51,22 +145,37 @@ public class TabSearch {
 	TableView table;
 	
 	CoreQueryRequest cr=new CoreQueryRequest();
-	public static QueryResourceResult currentSelection=null;
 	
+	static ObservableVariable<QueryResourceResult> currentSensor=new ObservableVariable<QueryResourceResult>();	
+	static ObservableVariable<QueryResourceResult> currentActor=new ObservableVariable<QueryResourceResult>();	
+	static ObservableVariable<QueryResourceResult> currentService=new ObservableVariable<QueryResourceResult>();	
+		
 	ObservableList<QueryResourceResult> data=FXCollections.observableArrayList();
 
 	ObservedPropertyContainer obsProps_property=new ObservedPropertyContainer();
 	
 	ObservedPropertyContainer obsProps_property_uri=new ObservedPropertyContainer();
-	public void init() {
+
+	
+	@FXML
+    public TableView<QueryResourceResult> tableIdServices;
+
+	@FXML
+    public TableView<QueryResourceResult> tableIdSensors;
+
+	
+	
+	public void init() throws IOException {
 		
 		Tab tabSearchParameter=setupParameterTab();
-		Tab tabSearchResults=setupResultTab();
+		Tab tabSearchResults=setupNewResultTab();
+		
 		Tab tabManage=setupManageTab();
+		
 		
         tab = new Tab();
         tab.setText("Search ...");
-        
+                
 
         TabPane tabPane = new TabPane();
         
@@ -82,6 +191,102 @@ public class TabSearch {
 
 	
 	
+	private Tab setupNewResultTab() throws IOException {
+
+		Tab newSearchResults=new Tab();
+		newSearchResults.setText("new Search results...");
+
+		
+        Class<?> cl=getClass();
+        URL resourceURL=cl.getResource("/fxml/SearchtabResults.fxml");
+        FXMLLoader loader=new FXMLLoader(resourceURL);
+        loader.setController(this);
+        Node root=loader.load();
+        newSearchResults.setContent(root);
+
+        
+        ObservableList<TableColumn<QueryResourceResult, ?>> columns=tableIdServices.getColumns();
+        
+        TableColumn col = columns.get(0);
+        col.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("id"));
+
+        col = columns.get(1);
+        col.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("name"));
+
+        col = columns.get(2);
+        col.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("description"));
+
+        col = columns.get(3);
+        col.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("inputParameters"));
+
+        col = columns.get(4);
+        col.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("platformId"));
+
+        col = columns.get(5);
+        col.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("platformName"));
+
+        
+        tableIdServices.setItems(SearchManagement.services);
+
+        ChangeListener selectionListenerService=new ChangeListener() {
+			@Override
+			public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+//				currentActor.setValue(null);
+				tableIdSensors.getSelectionModel().clearSelection();
+				currentService.setValue((QueryResourceResult) newValue);
+			}
+        };
+        tableIdServices.getSelectionModel().selectedItemProperty().addListener(selectionListenerService);
+
+        
+        
+        columns=tableIdSensors.getColumns();
+        
+        col = columns.get(0);
+        col.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("id"));
+
+        col = columns.get(1);
+        col.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("name"));
+        
+        col = columns.get(2);
+        col.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("locationName"));
+        
+        col = columns.get(3);
+        col.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("locationLongitude"));
+        
+        col = columns.get(4);
+        col.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("locationLatitude"));
+
+        col = columns.get(5);
+        col.setCellValueFactory(new LinewrappedPropertyValueFactory<QueryResourceResult>("observedProperties"));
+
+        col = columns.get(6);
+        col.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("description"));
+        
+        tableIdSensors.setItems(SearchManagement.sensors);
+        
+        
+        ChangeListener selectionListenerSensor=new ChangeListener() {
+			@Override
+			public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+//				currentActor.setValue(null);
+				tableIdServices.getSelectionModel().clearSelection();
+				currentSensor.setValue((QueryResourceResult) newValue);
+			}
+        };
+        
+        tableIdSensors.getSelectionModel().selectedItemProperty().addListener(selectionListenerSensor);
+        
+        
+
+        
+        
+		return newSearchResults;
+	}
+
+
+
+
 	private Tab setupParameterTab() {
 		
 		
@@ -279,59 +484,6 @@ public class TabSearch {
 
 	
 	
-	private Tab setupResultTab() {
-		
-        Tab tabSearchResults=new Tab();
-        tabSearchResults.setText("Search results");
-
-        
-        
-        table = new TableView<Object>();
-        
-        TableColumn idColumn = new TableColumn("id");
-        idColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("id"));
-        
-        TableColumn nameColumn = new TableColumn("Name");
-        nameColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("name"));
-        
-        TableColumn locnameColumn = new TableColumn("Locationname");
-        locnameColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("locationName"));
-        
-        TableColumn longitudeColumn = new TableColumn("longitude");
-        longitudeColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("locationLongitude"));
-        
-        TableColumn latitudeColumn = new TableColumn("latitude");
-        latitudeColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("locationLatitude"));
-
-        TableColumn obsPropColumn = new TableColumn("observedProperties");
-        obsPropColumn.setCellValueFactory(new LinewrappedPropertyValueFactory<QueryResourceResult>("observedProperties"));
-
-        TableColumn descColumn = new TableColumn("description");
-        descColumn.setCellValueFactory(new PropertyValueFactory<QueryResourceResult, String>("description"));
-        
-        table.getColumns().addAll(idColumn, nameColumn, locnameColumn, longitudeColumn, latitudeColumn, obsPropColumn, descColumn);
-
-        table.setItems(data);
-        
-        
-        ChangeListener selectionListener=new ChangeListener() {
-
-			@Override
-			public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-				currentSelection=(QueryResourceResult) newValue;
-			}
-        	
-        };
-        
-        table.getSelectionModel().selectedItemProperty().addListener(selectionListener);
-        
-        
-
-        tabSearchResults.setContent(table);
-        
-		return tabSearchResults;
-	}
-
 	private Tab setupManageTab() {
 		
         Tab tabManage=new Tab();

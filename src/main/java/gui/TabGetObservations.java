@@ -69,12 +69,12 @@ public class TabGetObservations {
             @Override
             public void handle(ActionEvent event) {
 
-            	if (TabSearch.currentSelection==null) {
+            	if (TabSearch.currentSensor.getValue()==null) {
             		System.out.println("Ignoring pressed button as no resource is selected");
             		return;
             	}
             	
-            	String resourceID=TabSearch.currentSelection.getId();
+            	String resourceID=TabSearch.currentSensor.getValue().getId();
             	
             	url=SearchManagement.getResourceURL(resourceID)+"/Observations?$top=1";
             	
@@ -83,11 +83,22 @@ public class TabGetObservations {
 
             }
             
-            
 
         });
         
+        
+        ChangeListener changeListenerSensors=new ChangeListener() {
+			@Override
+			public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+				System.out.println("Selection changed!!!!");
+				// TODO: Stop the timer
+				// TODO: Disable this tab if no selection at all.
+			}
+        };
+        TabSearch.currentSensor.addListener(changeListenerSensors);
 
+        
+        
         table = new TableView<Observation>();
 
         TableColumn timeColumn = new TableColumn("ResultTime");

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.GridPane?>
+
+<GridPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <columnConstraints>
+      <ColumnConstraints hgrow="ALWAYS" />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+      <RowConstraints />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" />
+      <RowConstraints minHeight="100.0" prefHeight="30.0" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" />
+      <RowConstraints />
+      <RowConstraints />
+   </rowConstraints>
+   <children>
+      <TableView fx:id="tableIdSensors" GridPane.rowIndex="1">
+        <columns>
+            <TableColumn prefWidth="75.0" text="id" />
+            <TableColumn prefWidth="75.0" text="name" />
+            <TableColumn prefWidth="75.0" text="locationName" />
+            <TableColumn prefWidth="75.0" text="locationLongitude" />
+            <TableColumn prefWidth="75.0" text="locationLatitude" />
+            <TableColumn prefWidth="75.0" text="observedProperties" />
+            <TableColumn prefWidth="75.0" text="description" />
+        </columns>
+      </TableView>
+      <TableView GridPane.rowIndex="3">
+        <columns>
+          <TableColumn prefWidth="75.0" text="id" />
+          <TableColumn prefWidth="75.0" text="C2" />
+        </columns>
+      </TableView>
+      <TableView fx:id="tableIdServices" GridPane.rowIndex="5">
+        <columns>
+            <TableColumn prefWidth="75.0" text="id" />
+            <TableColumn prefWidth="75.0" text="name" />
+            <TableColumn prefWidth="75.0" text="description" />
+            <TableColumn prefWidth="75.0" text="input parameter" />
+            <TableColumn prefWidth="75.0" text="platformId" />
+            <TableColumn prefWidth="75.0" text="platformName" />
+        </columns>
+      </TableView>
+      <Label text="Label" GridPane.rowIndex="2" />
+      <Label text="Label" />
+      <Label text="Label" GridPane.rowIndex="4" />
+   </children>
+</GridPane>

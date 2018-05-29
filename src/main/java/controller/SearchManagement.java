@@ -1,7 +1,9 @@
 package controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -12,11 +14,21 @@ import eu.h2020.symbiote.core.internal.CoreQueryRequest;
 import eu.h2020.symbiote.core.internal.cram.ResourceUrlsResponse;
 import eu.h2020.symbiote.model.cim.Observation;
 import eu.h2020.symbiote.security.commons.SecurityConstants;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import utils.Utils;
 
 public class SearchManagement {
 
 	public static List<QueryResourceResult>resources=null;
+	public static ObservableList<QueryResourceResult> sensors=FXCollections.observableArrayList();
+	public static ObservableList<QueryResourceResult> actuators=FXCollections.observableArrayList();
+	public static ObservableList<QueryResourceResult> services=FXCollections.observableArrayList();
+
+	
+	final static String sensorIRI="http://www.symbiote-h2020.eu/ontology/core#StationarySensor";			// There are also mobile sensors, are there?
+	final static String actuatorIRI="http://www.symbiote-h2020.eu/ontology/core#Actuator";					// Double check this one
+	final static String serviceIRI="http://www.symbiote-h2020.eu/ontology/core#Service";
 	
 	public static void doParametricSearch(CoreQueryRequest cr) {
 		
@@ -62,6 +74,25 @@ public class SearchManagement {
         
         resources=qr.getBody();
 
+
+    	sensors.clear();
+    	actuators.clear();
+    	services.clear();
+        
+        Iterator<QueryResourceResult> it=resources.iterator();
+        while(it.hasNext()) {
+        	QueryResourceResult resource=it.next();
+        	List<String> types=resource.getResourceType();
+
+        	if (types.contains(sensorIRI))
+        		sensors.add(resource);
+        	if (types.contains(actuatorIRI))
+        		actuators.add(resource);
+        	if (types.contains(serviceIRI))
+        		services.add(resource);
+        	
+        	it.remove();
+        }
 
 		
 		// More processing
