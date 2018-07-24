@@ -69,7 +69,7 @@ public class SearchManagement {
         System.out.println("Query ULR is "+queryUrl);
 //        log.info("queryUrl = " + queryUrl);
 
-        QueryResponse qr=(QueryResponse) Utils.sendRequestAndVerifyResponse("GET", queryUrl, ConnectionManager.homePlatformId,
+        QueryResponse qr=(QueryResponse) Utils.sendRequestAndVerifyResponse("GET", queryUrl, null, ConnectionManager.homePlatformId,
                 SecurityConstants.CORE_AAM_INSTANCE_ID, "search", new TypeReference<QueryResponse>(){});
         
         resources=qr.getBody();
@@ -102,7 +102,7 @@ public class SearchManagement {
 	public static String getResourceURL(String resourceId) {
 	    String cramRequestUrl = ConnectionManager.symbIoTeCoreUrl + "/resourceUrls?id=" + resourceId;
 	    
-	    ResourceUrlsResponse rur=(ResourceUrlsResponse) Utils.sendRequestAndVerifyResponse("GET", cramRequestUrl, ConnectionManager.homePlatformId,
+	    ResourceUrlsResponse rur=(ResourceUrlsResponse) Utils.sendRequestAndVerifyResponse("GET", cramRequestUrl, null, ConnectionManager.homePlatformId,
 	            SecurityConstants.CORE_AAM_INSTANCE_ID, "cram", new TypeReference<ResourceUrlsResponse>(){});
 	    
 	    HashMap<String, String> urlList=rur.getBody();
@@ -118,12 +118,20 @@ public class SearchManagement {
 		TypeReference<List<Observation>> resultClass=new TypeReference<List<Observation>>(){};
 //		TypeReference<Observation> resultClass=new TypeReference<Observation>(){};
 		
-		List<Observation> observations=(List<Observation>)Utils.sendRequestAndVerifyResponse("GET", url, ConnectionManager.homePlatformId, ConnectionManager.homePlatformId, "rap", resultClass);
+		List<Observation> observations=(List<Observation>)Utils.sendRequestAndVerifyResponse("GET", url, null, ConnectionManager.homePlatformId, ConnectionManager.homePlatformId, "rap", resultClass);
 		System.out.println("Got observation: "+observations);
 		
 		if (observations.size()<1) {
 			throw new IllegalArgumentException("Got back a list with zero length from RAP");
 		}
 		return observations.get(0);
+	}
+	
+	
+	public static void callService(String resourceID, String parameter) {
+		TypeReference<String> resultClass=new TypeReference<String>(){};
+		
+		String serviceURL=getResourceURL(resourceID);
+		Utils.sendRequestAndVerifyResponse("PUT", serviceURL, parameter, ConnectionManager.homePlatformId, ConnectionManager.homePlatformId, "rap", resultClass);
 	}
 }

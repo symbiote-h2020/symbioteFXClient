@@ -4,6 +4,7 @@ package utils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,7 +29,7 @@ import eu.h2020.symbiote.security.helpers.MutualAuthenticationHelper;
 
 public class Utils {
 
-	public static Object sendRequestAndVerifyResponse(String httpMethod, String strUrl, String homePlatformId,
+	public static Object sendRequestAndVerifyResponse(String httpMethod, String strUrl, String payload, String homePlatformId,
 			String targetPlatformId, String componentId, TypeReference<?> expectedType) {
 
 		Map<String, String> securityRequestHeaders=null;
@@ -41,13 +42,6 @@ public class Utils {
 		// Insert Security Request into the headers
 		try {
 
-			URL url=new URL(strUrl);
-			urlConnection=(HttpURLConnection) url.openConnection();
-			urlConnection.setRequestMethod(httpMethod);
-
-			
-			urlConnection.setRequestProperty("Accept", "application/json");
-			
 			Set<AuthorizationCredentials> authorizationCredentialsSet = new HashSet<>();
 			Map<String, AAM> availableAAMs = ConnectionManager.securityHandler.getAvailableAAMs();
 
@@ -75,27 +69,43 @@ public class Utils {
 				| NoSuchAlgorithmException e) {
 			e.printStackTrace();
 			return null;
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		for (Map.Entry<String, String> entry : securityRequestHeaders.entrySet()) {
-			String key=entry.getKey();
-			String value=entry.getValue();
-			System.out.println("Copying header "+key+" with a value of "+value);
-			urlConnection.setRequestProperty(key, value);
-		}
 //		log.info("request headers: " + httpHeaders);
 
 //		HttpEntity<String> httpEntity = new HttpEntity<>(httpHeaders);
 
 //		ResponseEntity<?> responseEntity = null;
 		try {
-			urlConnection.connect();
+			
+			URL url=new URL(strUrl);
+			urlConnection=(HttpURLConnection) url.openConnection();
+			urlConnection.setRequestMethod(httpMethod);
+			urlConnection.setRequestProperty("Accept", "application/json");
+						
+			for (Map.Entry<String, String> entry : securityRequestHeaders.entrySet()) {
+				String key=entry.getKey();
+				String value=entry.getValue();
+				System.out.println("Copying header "+key+" with a value of "+value);
+				urlConnection.setRequestProperty(key, value);
+			}
+
+			
+			if ("PUT".equals(httpMethod)) {	// Might need to be extended to also include POST and such
+				urlConnection.setDoOutput(true);
+				urlConnection.setRequestProperty("Content-Type", "application/json");
+		        OutputStreamWriter osw = new OutputStreamWriter(urlConnection.getOutputStream());
+		        osw.write(payload);
+		        osw.flush();
+		        osw.close();
+
+			} else {
+				urlConnection.connect();
+			}
+			
 			int error=urlConnection.getResponseCode();
 			InputStream is;
 			ByteArrayOutputStream bos=new ByteArrayOutputStream();

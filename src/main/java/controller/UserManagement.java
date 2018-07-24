@@ -12,6 +12,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import eu.h2020.symbiote.security.ClientSecurityHandlerFactory;
+import eu.h2020.symbiote.security.commons.enums.AccountStatus;
 import eu.h2020.symbiote.security.commons.enums.OperationType;
 import eu.h2020.symbiote.security.commons.enums.UserRole;
 import eu.h2020.symbiote.security.commons.exceptions.custom.AAMException;
@@ -37,8 +38,9 @@ public class UserManagement {
 		
 //        log.info("Registering to PAAM: " + platformId);
 		String platformId=ConnectionManager.homePlatformId;
-		String paamOwnerUsername="duennebeilg";
-		String paamOwnerPassword="Catberta";
+
+		String paamOwnerUsername=theProperties.getProperty("platform.owner.name");
+		String paamOwnerPassword=theProperties.getProperty("platform.owner.pass");
 		
 		String username=theProperties.getProperty("appuser");
 		String password=theProperties.getProperty("apppass");
@@ -57,8 +59,11 @@ public class UserManagement {
              					newUserCredentials, 
              					"icom@icom.com",
              					UserRole.USER, 
+             					AccountStatus.ACTIVE,
              					new HashMap<>(), 
-             					new HashMap<>()
+             					new HashMap<>(),
+             					true,
+             					false
              				);
              
             UserManagementRequest userManagementRequest 

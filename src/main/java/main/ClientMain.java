@@ -5,9 +5,11 @@ import java.util.Properties;
 
 import controller.ConnectionManager;
 import controller.UserManagement;
+import gui.TabActorOperations;
 import gui.TabCreateUser;
-import gui.TabGetObservations;
 import gui.TabSearch;
+import gui.TabSensorOperations;
+import gui.TabServiceOperations;
 import gui.TabSettings;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -62,9 +64,17 @@ public class ClientMain extends Application {
 	        tabPane.getTabs().add(tsea.getTab());
 	        
 	        
-	        TabGetObservations tgo=new TabGetObservations();
+	        TabSensorOperations tgo=new TabSensorOperations();
 	        tgo.init();
 	        tabPane.getTabs().add(tgo.getTab());
+	        	        
+	        TabActorOperations tao=new TabActorOperations();
+	        tao.init();
+	        tabPane.getTabs().add(tao.getTab());
+	        	        
+	        TabServiceOperations tso=new TabServiceOperations();
+	        tso.init();
+	        tabPane.getTabs().add(tso.getTab());
 	        	        
 	        primaryStage.setScene(new Scene(tabPane, 300, 250));
 	        primaryStage.show();		

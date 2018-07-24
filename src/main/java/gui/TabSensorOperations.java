@@ -30,7 +30,7 @@ import eu.h2020.symbiote.core.ci.QueryResourceResult;
 import eu.h2020.symbiote.model.cim.Observation;
 
 
-public class TabGetObservations {
+public class TabSensorOperations {
 
 	Tab tab;
 	
@@ -90,12 +90,18 @@ public class TabGetObservations {
         ChangeListener changeListenerSensors=new ChangeListener() {
 			@Override
 			public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-				System.out.println("Selection changed!!!!");
+				System.out.println("Selection of sensor changed!!!!");
+				if (newValue==null) {
+			        tab.disableProperty().set(true);
 				// TODO: Stop the timer
 				// TODO: Disable this tab if no selection at all.
+				} else {
+			        tab.disableProperty().set(false);
+				}
 			}
         };
         TabSearch.currentSensor.addListener(changeListenerSensors);
+        tab.disableProperty().set(true);
 
         
         
